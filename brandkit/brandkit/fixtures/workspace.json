@@ -1,0 +1,26 @@
+[
+ {
+  "doctype": "Workspace",
+  "name": "Brandkit",
+  "label": "Brandkit",
+  "title": "Brandkit",
+  "module": "Brandkit",
+  "icon": "paint",
+  "is_hidden": 0,
+  "public": 1,
+  "sequence_id": 1.0,
+  "type": "Workspace",
+  "content": "[{\"id\":\"brandkit_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Brandkit</span>\",\"col\":12}},{\"id\":\"brandkit_paragraph\",\"type\":\"paragraph\",\"data\":{\"text\":\"White-label branding and theme settings for this site.\",\"col\":12}},{\"id\":\"brandkit_shortcut\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Brandkit Settings\",\"col\":3}}]",
+  "shortcuts": [
+   {
+    "doctype": "Workspace Shortcut",
+    "type": "DocType",
+    "link_to": "Brandkit Settings",
+    "label": "Brandkit Settings"
+   }
+  ],
+  "links": [],
+  "charts": [],
+  "roles": []
+ }
+]

@@ -1,0 +1,3 @@
+# Patches added here run once, in order, per site.
+# frappe.command.utils.patch_list_path style entries go below, e.g.:
+# brandkit.patches.v0_0.some_migration

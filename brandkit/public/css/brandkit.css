@@ -1,0 +1,44 @@
+/* Fallback defaults — overridden at runtime by public/js/brandkit.js reading
+   Brandkit Settings, so these values only matter before boot data lands
+   (first paint) or if JS is disabled. */
+:root {
+	--brandkit-primary: #2490ef;
+	--brandkit-secondary: #f0f4f7;
+}
+
+/* Buttons */
+.btn-primary,
+a.btn-primary {
+	background-color: var(--brandkit-primary) !important;
+	border-color: var(--brandkit-primary) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+	filter: brightness(90%);
+}
+
+/* Links and accented text */
+a,
+.text-primary,
+.indicator.blue::before {
+	color: var(--brandkit-primary);
+}
+
+/* Navbar accent */
+.navbar {
+	border-bottom: 2px solid var(--brandkit-secondary);
+}
+
+/* Active sidebar / list row highlight */
+.list-row-container:hover,
+.sidebar-item.selected,
+.desk-sidebar-item.selected {
+	background-color: var(--brandkit-secondary) !important;
+}
+
+/* Form section active tab underline */
+.form-tabs .nav-link.active {
+	border-bottom: 2px solid var(--brandkit-primary);
+	color: var(--brandkit-primary) !important;
+}
