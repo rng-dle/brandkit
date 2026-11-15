@@ -3,7 +3,7 @@ from . import __version__ as app_version  # noqa: F401
 app_name = "brandkit"
 app_title = "Brandkit"
 app_publisher = "Your Company"
-app_description = "White-label branding and theme customization for Frappe/ERPNext"
+app_description = "White-label branding and theme customization for the ERP desk"
 app_email = "you@example.com"
 app_license = "MIT"
 

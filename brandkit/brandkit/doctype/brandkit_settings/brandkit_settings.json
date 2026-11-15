@@ -52,7 +52,7 @@
    "fieldname": "powered_by_text",
    "fieldtype": "Data",
    "label": "Powered By Text",
-   "description": "Overrides the default 'Powered by Frappe' footer credit, where present."
+   "description": "Overrides the default 'Powered by' footer credit, where present."
   },
   {
    "fieldname": "sync_to_website_settings",

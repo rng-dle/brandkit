@@ -3,7 +3,7 @@ frappe.ui.form.on("Brandkit Settings", {
 		frm.trigger("preview_theme");
 		frm.add_custom_button(__("Reset to Defaults"), () => {
 			frappe.confirm(
-				__("Reset Primary and Secondary colors to the Frappe defaults?"),
+				__("Reset Primary and Secondary colors to the stock defaults?"),
 				() => {
 					frm.set_value("primary_color", "#2490EF");
 					frm.set_value("secondary_color", "#F0F4F7");

@@ -1,6 +1,6 @@
 # Brandkit
 
-White-label branding and theme customization for Frappe / ERPNext.
+White-label branding and theme customization for the ERP desk.
 
 ## Features
 
