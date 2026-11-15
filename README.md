@@ -1,34 +1,19 @@
-# Brandkit
+# brandkit — per-company design app
 
-White-label branding and theme customization for Frappe / ERPNext.
+One small Frappe app per company that restyles the whole desk, login, apps screen and emails, and
+strips vendor names from visible UI. The look lives in `brandkit/companies/<slug>.json`
+(tokens, scrub map, selectors to hide) plus `public/images/logo.svg`; code is shared.
 
-## Features
+    bench get-app https://github.com/rng-dle/brandkit --branch company-skin
+    bench --site SITE install-app brandkit        # install LAST so its single-value hooks win
+    bench --site SITE set-config brandkit_company maple_ridge
+    bench build --app brandkit && bench --site SITE migrate
 
-- **App branding**: custom app name, logo, and favicon — synced automatically
-  to Website Settings so the Desk and the public website match.
-- **Theme colors**: set a Primary and Secondary color from a single settings
-  page (any hex value); applied live across the Desk UI.
-- **Help menu**: add a custom link/label to the Desk Help dropdown.
-- **Update popup**: show a one-time announcement/update message to users per
-  browser session.
-- **"Powered by" text**: override the default footer credit line.
+What it does
+- tokens -> CSS variables mapped onto stock desk variables (`public/css/brandkit.css`)
+- runtime scrubber for chrome text/titles/icons (`public/js/brandkit.js`), skips user data
+- site setup on install/migrate (`setup.py`): Website Settings, Navbar help links, apps-screen tile
+  relabel, framework tile admin-only, email footer
+- new company = copy the JSON, swap logo, set `brandkit_company`
 
-## Installation
-
-```bash
-bench get-app /path/to/brandkit
-bench --site your-site install-app brandkit
-bench build --app brandkit
-bench --site your-site migrate
-```
-
-## Configuration
-
-Go to **Brandkit Settings** (single doctype, under the Brandkit module) in the
-Desk and fill in the fields. Changes apply on the next page load / session
-refresh for other users, and immediately for the user who saved it after a
-browser refresh.
-
-## License
-
-MIT
+Selectors target the v16 desk and should be tuned against the live DOM per release.

@@ -1,44 +1,76 @@
-/* Fallback defaults — overridden at runtime by public/js/brandkit.js reading
-   Brandkit Settings, so these values only matter before boot data lands
-   (first paint) or if JS is disabled. */
+/* Brandkit design layer. Variables are set at runtime from the company config; defaults below match
+   the Maple Ridge file so first paint is already on-brand. Selectors are layered over stock desk
+   variables so they survive point releases; tune against the live DOM. */
 :root {
-	--brandkit-primary: #2490ef;
-	--brandkit-secondary: #f0f4f7;
+  --bk-primary:#1f5f46; --bk-primary-hover:#184c38; --bk-accent:#b8322a;
+  --bk-page:#f5f3ee; --bk-card:#fff; --bk-control:#f0eee8; --bk-border:#e2ded3;
+  --bk-text:#2a2f2c; --bk-heading:#14211a; --bk-muted:#6f766f;
+  --bk-nav:#14211a; --bk-nav-text:#f5f3ee; --bk-side:#ebe8df;
+  --bk-success:#2f8a57; --bk-warning:#c98a1b; --bk-danger:#b8322a;
+  --bk-radius:10px; --bk-radius-sm:8px;
+  --bk-font:Inter,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bk-shadow:0 1px 2px rgba(20,33,26,.06),0 4px 14px rgba(20,33,26,.06);
 }
+/* Map onto stock variables so every built-in component follows the palette. */
+:root, [data-theme="light"], [data-theme-mode="light"] {
+  --primary:var(--bk-primary); --primary-color:var(--bk-primary);
+  --bg-color:var(--bk-page); --fg-color:var(--bk-card); --control-bg:var(--bk-control);
+  --border-color:var(--bk-border); --text-color:var(--bk-text); --heading-color:var(--bk-heading);
+  --text-muted:var(--bk-muted); --text-light:var(--bk-muted);
+  --navbar-bg:var(--bk-nav); --sidebar-select-color:var(--bk-card);
+  --card-bg:var(--bk-card); --modal-bg:var(--bk-card); --popover-bg:var(--bk-card);
+  --border-radius:var(--bk-radius-sm); --border-radius-md:var(--bk-radius-sm); --border-radius-lg:var(--bk-radius);
+  --border-radius-full:999px; --shadow-base:var(--bk-shadow);
+  --font-stack:var(--bk-font);
+}
+html, body { font-family:var(--bk-font); color:var(--bk-text); background:var(--bk-page); -webkit-font-smoothing:antialiased; }
+h1,h2,h3,h4,.title-text,.page-title .title-text { color:var(--bk-heading); letter-spacing:-.01em; font-weight:600; }
 
-/* Buttons */
-.btn-primary,
-a.btn-primary {
-	background-color: var(--brandkit-primary) !important;
-	border-color: var(--brandkit-primary) !important;
-}
+/* Navbar */
+.navbar, header.navbar { background:var(--bk-nav)!important; border-bottom:0!important; box-shadow:0 1px 0 rgba(255,255,255,.04); }
+.navbar .nav-link, .navbar .navbar-brand, .navbar .dropdown-toggle, .navbar svg { color:var(--bk-nav-text)!important; stroke:var(--bk-nav-text); }
+.navbar .search-bar .form-control { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:var(--bk-nav-text); border-radius:var(--bk-radius-sm); }
+.navbar .search-bar .form-control::placeholder { color:rgba(245,243,238,.6); }
 
-.btn-primary:hover,
-.btn-primary:focus {
-	filter: brightness(90%);
-}
+/* Sidebar / dock */
+.layout-side-section, .desk-sidebar, .sidebar, .dock { background:var(--bk-side); }
+.sidebar-item-container.selected .sidebar-item, .standard-sidebar-item.selected, .sidebar-item.selected, .list-sidebar .sidebar-link.selected {
+  background:var(--bk-card)!important; color:var(--bk-heading); border-radius:var(--bk-radius-sm); box-shadow:var(--bk-shadow); font-weight:600; }
 
-/* Links and accented text */
-a,
-.text-primary,
-.indicator.blue::before {
-	color: var(--brandkit-primary);
-}
+/* Cards, widgets, forms, lists */
+.widget, .frappe-card, .form-layout .form-section, .form-dashboard, .layout-main-section, .page-card, .modal-content, .dropdown-menu, .popover, .desktop-icon .icon-container {
+  background:var(--bk-card); border:1px solid var(--bk-border); border-radius:var(--bk-radius); box-shadow:var(--bk-shadow); }
+.layout-main-section { padding:0; overflow:hidden; }
+.widget.number-widget-box .widget-title, .widget-head .widget-title { color:var(--bk-heading); font-weight:600; }
+.list-row-head, .result thead th, .dt-header .dt-cell { background:var(--bk-control)!important; color:var(--bk-muted); text-transform:uppercase; font-size:11px; letter-spacing:.04em; }
+.list-row:hover, .grid-row:hover { background:var(--bk-control); }
 
-/* Navbar accent */
-.navbar {
-	border-bottom: 2px solid var(--brandkit-secondary);
-}
+/* Controls */
+.form-control, .input-with-feedback, select.form-control, .awesomplete input { background:var(--bk-control); border:1px solid transparent; border-radius:var(--bk-radius-sm); }
+.form-control:focus { background:var(--bk-card); border-color:var(--bk-primary); box-shadow:0 0 0 3px color-mix(in srgb, var(--bk-primary) 18%, transparent); }
+.btn { border-radius:var(--bk-radius-sm); font-weight:500; }
+.btn-primary, .btn-primary-light { background:var(--bk-primary)!important; border-color:var(--bk-primary)!important; color:#fff!important; }
+.btn-primary:hover { background:var(--bk-primary-hover)!important; }
+.btn-default, .btn-secondary { background:var(--bk-card); border:1px solid var(--bk-border); color:var(--bk-text); }
+a, .link-text { color:var(--bk-primary); }
 
-/* Active sidebar / list row highlight */
-.list-row-container:hover,
-.sidebar-item.selected,
-.desk-sidebar-item.selected {
-	background-color: var(--brandkit-secondary) !important;
-}
+/* Indicators */
+.indicator-pill.green, .indicator.green::before { --c:var(--bk-success); }
+.indicator-pill.orange, .indicator-pill.yellow { --c:var(--bk-warning); }
+.indicator-pill.red { --c:var(--bk-danger); }
+.indicator-pill { border-radius:999px; font-weight:500; }
 
-/* Form section active tab underline */
-.form-tabs .nav-link.active {
-	border-bottom: 2px solid var(--brandkit-primary);
-	color: var(--brandkit-primary) !important;
-}
+/* Apps screen / desktop tiles */
+.desktop-container, .desktop { background:var(--bk-page); }
+.desktop-icon .icon-container, .desktop-icon .icon-title { color:var(--bk-heading); }
+.desktop-icon:hover .icon-container { transform:translateY(-2px); transition:transform .15s ease; }
+
+/* Login / signup: split screen */
+body.for-login, body[data-path="login"], .for-login, #page-login { background:var(--bk-nav)!important; }
+.page-card-head .app-logo, .page-card-head img, .login-content .app-logo { height:44px; width:auto; }
+.page-card, .login-content .page-card { background:var(--bk-card); border:0; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.35); padding:28px 28px 22px; }
+.page-card-head h4, .page-card-head .login-title { color:var(--bk-heading); font-weight:600; }
+.login-content .btn-primary, .page-card .btn-primary { border-radius:var(--bk-radius-sm); padding:10px 14px; }
+
+/* Vendor chrome kill-list (also injected from config at runtime) */
+.powered-by-frappe, .footer-powered, a[href*="erpnext.com"], a[href*="frappe.io"], .support-banner { display:none!important; }

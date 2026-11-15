@@ -1,89 +1,99 @@
-frappe.provide("brandkit");
-
-brandkit.apply = function () {
-	const settings = frappe.boot && frappe.boot.brandkit_settings;
-	if (!settings) return;
-
-	brandkit.apply_theme(settings);
-	brandkit.apply_branding(settings);
-	brandkit.apply_help_menu(settings);
-	brandkit.apply_update_popup(settings);
-};
-
-brandkit.apply_theme = function (settings) {
+// Brandkit: apply company tokens, rebrand chrome, scrub vendor names from visible UI.
+(function () {
+	const B = (window.frappe && frappe.boot && frappe.boot.brandkit) || window.__brandkit;
 	const root = document.documentElement;
-	if (settings.primary_color) {
-		root.style.setProperty("--brandkit-primary", settings.primary_color);
-		// Also override Frappe's own theme variables so built-in components
-		// (buttons, links, indicators) pick up the color without needing
-		// brandkit.css to fight every element individually.
-		root.style.setProperty("--primary", settings.primary_color);
-		root.style.setProperty("--primary-color", settings.primary_color);
+
+	function tokens(t) {
+		const m = {
+			"--bk-primary": t.primary, "--bk-primary-hover": t.primary_hover, "--bk-accent": t.accent,
+			"--bk-page": t.page_bg, "--bk-card": t.card_bg, "--bk-control": t.control_bg, "--bk-border": t.border,
+			"--bk-text": t.text, "--bk-heading": t.heading, "--bk-muted": t.muted,
+			"--bk-nav": t.navbar_bg, "--bk-nav-text": t.navbar_text, "--bk-side": t.sidebar_bg,
+			"--bk-success": t.success, "--bk-warning": t.warning, "--bk-danger": t.danger,
+			"--bk-radius": t.radius, "--bk-radius-sm": t.radius_sm, "--bk-font": t.font, "--bk-shadow": t.shadow,
+		};
+		Object.keys(m).forEach((k) => m[k] && root.style.setProperty(k, m[k]));
 	}
-	if (settings.secondary_color) {
-		root.style.setProperty("--brandkit-secondary", settings.secondary_color);
+
+	let rules = [];
+	function scrubText(s) {
+		let out = s;
+		rules.forEach(([re, to]) => (out = out.replace(re, to)));
+		return out;
 	}
-};
+	const SKIP = "script,style,textarea,input,code,pre,.ql-editor,.frappe-control,.form-control,[contenteditable],.list-row,.grid-row,.dt-cell,.report-wrapper";
+	// Only chrome is scrubbed, never user data. Rows/cells/forms are skipped.
+	const CHROME = ".navbar,.desktop-container,.desktop,.sidebar,.layout-side-section,.dock,.login-content,.for-login,.web-footer,.page-head .title-text,.dropdown-menu,.modal-title,.onboarding-widget-box,body > .footer";
 
-brandkit.apply_branding = function (settings) {
-	if (settings.app_name) {
-		document.title = settings.app_name;
-		$(".navbar-brand span, .navbar-brand .app-name").text(settings.app_name);
+	function sweep(node) {
+		const scope = node.nodeType === 1 ? [node] : [];
+		scope.forEach((n) => {
+			const hosts = n.matches && n.matches(CHROME) ? [n] : Array.from(n.querySelectorAll ? n.querySelectorAll(CHROME) : []);
+			hosts.forEach((h) => {
+				const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+				let t;
+				while ((t = w.nextNode())) {
+					if (t.parentElement && t.parentElement.closest(SKIP)) continue;
+					const v = scrubText(t.nodeValue);
+					if (v !== t.nodeValue) t.nodeValue = v;
+				}
+				h.querySelectorAll("[title],[placeholder],[aria-label]").forEach((e) => {
+					["title", "placeholder", "aria-label"].forEach((a) => {
+						const v = e.getAttribute(a);
+						if (v) {
+							const s = scrubText(v);
+							if (s !== v) e.setAttribute(a, s);
+						}
+					});
+				});
+			});
+		});
 	}
-	if (settings.app_logo) {
-		$(".navbar-brand img, .app-logo, #app-logo").attr("src", settings.app_logo);
+
+	function title() {
+		const s = scrubText(document.title);
+		if (s !== document.title) document.title = s;
 	}
-	if (settings.app_favicon) {
-		$('link[rel="shortcut icon"], link[rel="icon"]').attr("href", settings.app_favicon);
+
+	function icons() {
+		document.querySelectorAll('link[rel~="icon"]').forEach((l) => (l.href = "/assets/brandkit/images/favicon.svg"));
+		document.querySelectorAll(".app-logo, .navbar-brand img, .desktop-icon img[src*='erpnext'], img[src*='/assets/erpnext/'], img[src*='frappe-framework'], .app-logo img").forEach((i) => {
+			if (i.tagName === "IMG") i.src = "/assets/brandkit/images/logo.svg";
+		});
 	}
-	if (settings.powered_by_text) {
-		const $footer = $(".powered-by-frappe, .text-muted.small.powered-by");
-		if ($footer.length) {
-			$footer.html(settings.powered_by_text);
-		}
+
+	function hideCss(sels) {
+		if (!sels || !sels.length) return;
+		const s = document.createElement("style");
+		s.textContent = sels.join(",") + "{display:none!important}";
+		document.head.appendChild(s);
 	}
-};
 
-brandkit.apply_help_menu = function (settings) {
-	if (!settings.custom_help_text) return;
+	function init(cfg) {
+		tokens(cfg.tokens || {});
+		hideCss(cfg.hide_selectors);
+		rules = Object.entries(cfg.scrub || {})
+			.sort((a, b) => b[0].length - a[0].length)
+			.map(([k, v]) => [new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"), v]);
+		const run = () => { sweep(document.body); title(); icons(); };
+		run();
+		let q = 0;
+		new MutationObserver((muts) => {
+			if (q) return;
+			q = requestAnimationFrame(() => {
+				q = 0;
+				muts.forEach((m) => m.addedNodes.forEach((n) => n.nodeType === 1 && sweep(n)));
+				title();
+				icons();
+			});
+		}).observe(document.body, { childList: true, subtree: true });
+	}
 
-	// The Help dropdown is rendered after boot; give it a moment, then patch
-	// in a custom entry if it isn't there already (idempotent, safe to call
-	// more than once as routes change).
-	setTimeout(() => {
-		const $helpMenu = $(
-			'.dropdown-help .dropdown-menu, [data-label="Help"] + .dropdown-menu, #navbar-help + .dropdown-menu'
-		);
-		if ($helpMenu.length && !$helpMenu.find(".brandkit-help-item").length) {
-			$helpMenu.append(
-				`<li><a class="dropdown-item brandkit-help-item" href="${frappe.utils.escape_html(
-					settings.custom_help_link || "#"
-				)}" target="_blank" rel="noopener">${frappe.utils.escape_html(
-					settings.custom_help_text
-				)}</a></li>`
-			);
-		}
-	}, 1500);
-};
-
-brandkit.apply_update_popup = function (settings) {
-	if (!settings.show_update_popup || !settings.update_popup_html) return;
-	// Once per browser session, not once per page/route change.
-	if (sessionStorage.getItem("brandkit_update_seen")) return;
-
-	frappe.msgprint({
-		title: settings.app_name || __("Update"),
-		message: settings.update_popup_html,
-		indicator: "blue",
-	});
-	sessionStorage.setItem("brandkit_update_seen", "1");
-};
-
-// Desk fires "app_ready" once boot data + the shell are in place.
-$(document).on("app_ready", brandkit.apply);
-
-// Safety net: if this script attaches after app_ready already fired
-// (e.g. on a hard refresh where boot was cached), apply immediately too.
-if (frappe.boot && frappe.boot.brandkit_settings) {
-	brandkit.apply();
-}
+	function go() {
+		const cfg = (window.frappe && frappe.boot && frappe.boot.brandkit) || window.__brandkit;
+		if (cfg) return init(cfg);
+		// Website/login pages have no boot payload: load the config once.
+		fetch("/api/method/brandkit.api.public_config").then((r) => r.json()).then((r) => r.message && init(r.message)).catch(() => {});
+	}
+	if (document.body) go(); else document.addEventListener("DOMContentLoaded", go);
+})();

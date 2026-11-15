@@ -3,7 +3,7 @@ name = "brandkit"
 authors = [
     { name = "Your Company", email = "you@example.com" }
 ]
-description = "White-label branding and theme customization for Frappe/ERPNext"
+description = "Per-company design layer: tokens, logo, login, apps screen, neutral wording"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
